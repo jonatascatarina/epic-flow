@@ -1,8 +1,14 @@
-import { useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback } from 'react'
 
 const STORAGE_KEY = 'epic-flow-config'
 
+export const ConfigContext = createContext(null)
+
 export function useConfig() {
+  return useContext(ConfigContext)
+}
+
+export function useConfigState() {
   const [config, setConfig] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
