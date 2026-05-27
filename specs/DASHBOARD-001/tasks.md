@@ -44,7 +44,7 @@ Legenda: 🟢 Concluída | 🟡 Em progresso | 🔴 Não iniciada | ⏸ Bloquead
 
 ---
 
-## T6 🟡 BurndownChart (Chart.js + react-chartjs-2)
+## T6 🟢 BurndownChart (Chart.js + react-chartjs-2)
 
 **O que fazer:** Implementar `BurndownChart.jsx` com gráfico de linha mostrando: linha ideal (story points / dias do sprint) e linha real (story points restantes por dia). Usar `react-chartjs-2` — sem manipulação direta de canvas.
 
