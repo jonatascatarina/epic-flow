@@ -4,13 +4,21 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  Filler,
   Tooltip,
   Legend,
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
 import { calcBurndown } from '../utils/burndown'
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend)
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
+
+// Chart.js renders on <canvas> — CSS custom properties are not resolved by the
+// 2D context, so colours must be literal values.
+const COLOR_IDEAL_BORDER = 'rgba(255,255,255,0.35)'
+const COLOR_IDEAL_FILL   = 'rgba(255,255,255,0.05)'
+const COLOR_REAL         = '#4A9EE8'
+const COLOR_REAL_FILL    = 'rgba(74,158,232,0.12)'
 
 const OPTIONS = {
   responsive: true,
@@ -23,7 +31,7 @@ const OPTIONS = {
   plugins: {
     legend: {
       position: 'top',
-      labels: { color: 'var(--color-text)', boxWidth: 12 },
+      labels: { color: '#e6edf3', boxWidth: 12 },
     },
     tooltip: {
       callbacks: {
@@ -37,13 +45,13 @@ const OPTIONS = {
   },
   scales: {
     x: {
-      ticks: { color: 'var(--color-text-muted)', maxTicksLimit: 10 },
-      grid: { color: 'var(--color-border)' },
+      ticks: { color: '#8b949e', maxTicksLimit: 10 },
+      grid: { color: '#30363d' },
     },
     y: {
       beginAtZero: true,
-      ticks: { color: 'var(--color-text-muted)' },
-      grid: { color: 'var(--color-border)' },
+      ticks: { color: '#8b949e' },
+      grid: { color: '#30363d' },
     },
   },
 }
@@ -77,21 +85,25 @@ export default function BurndownChart({ issues, sprint, metrics }) {
       {
         label: 'Ideal',
         data: ideal,
-        borderColor: 'var(--color-accent)',
+        borderColor: COLOR_IDEAL_BORDER,
+        backgroundColor: COLOR_IDEAL_FILL,
         borderDash: [6, 3],
         borderWidth: 2,
         pointRadius: 0,
         tension: 0,
+        fill: true,
         hasPoints,
       },
       {
         label: 'Real',
         data: real,
-        borderColor: 'var(--color-danger)',
+        borderColor: COLOR_REAL,
+        backgroundColor: COLOR_REAL_FILL,
         borderWidth: 2,
         pointRadius: 4,
         pointHoverRadius: 6,
         tension: 0,
+        fill: true,
         hasPoints,
       },
     ],
