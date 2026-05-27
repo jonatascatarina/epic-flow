@@ -36,7 +36,7 @@ Legenda: 🟢 Concluída | 🟡 Em progresso | 🔴 Não iniciada | ⏸ Bloquead
 
 ---
 
-## T5 🟡 Cálculo de métricas (total, done, in progress, todo, %)
+## T5 🟢 Cálculo de métricas (total, done, in progress, todo, %)
 
 **O que fazer:** Criar funções puras (sem efeitos colaterais) que recebem `issues[]` e retornam: total de issues, concluídas, em progresso, a fazer, percentual de conclusão, story points por categoria (se disponível).
 
