@@ -60,7 +60,7 @@ Legenda: 🟢 Concluída | 🟡 Em progresso | 🔴 Não iniciada | ⏸ Bloquead
 
 ---
 
-## T8 🟡 AlertsList (WIP, stale, sem assignee)
+## T8 🟢 AlertsList (WIP, stale, sem assignee)
 
 **O que fazer:** Implementar `AlertsList.jsx` com três categorias de alerta: issues WIP há mais de N dias (configurável), issues sem assignee, issues em status "In Progress" acima do limite de WIP. Cada alerta mostra: tipo, issue key, resumo e ação sugerida.
 
