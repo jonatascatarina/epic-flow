@@ -12,7 +12,7 @@ import AlertsList from './AlertsList'
 
 export default function Dashboard({ onDisconnect }) {
   const { config } = useConfig()
-  const { issues, loading, error, refresh, load } = useJira()
+  const { issues, sprint, loading, error, refresh, load } = useJira()
 
   useEffect(() => { load() }, [load])
 
@@ -21,7 +21,6 @@ export default function Dashboard({ onDisconnect }) {
     staleThresholdDays: config?.staleThresholdDays,
     wipLimit: config?.wipLimit,
   })
-  const sprint = config?.sprint ?? null
 
   return (
     <div className="dashboard">

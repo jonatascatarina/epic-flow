@@ -17,36 +17,52 @@ function basicAuth(email, token) {
   return 'Basic ' + btoa(`${email}:${token}`)
 }
 
-async function fetchAllIssues(jiraUrl, email, token, sprintId) {
-  const base = jiraUrl.replace(/\/$/, '')
-  const headers = {
-    Authorization: basicAuth(email, token),
-    Accept: 'application/json',
+function checkStatus(res) {
+  if (res.ok) return res
+  if (res.status === 401) throw Object.assign(new Error('AUTH'), { code: 'AUTH' })
+  if (res.status === 403) throw Object.assign(new Error('PERMISSION'), { code: 'PERMISSION' })
+  if (res.status === 404) throw Object.assign(new Error('NOT_FOUND'), { code: 'NOT_FOUND' })
+  throw Object.assign(new Error(`HTTP_${res.status}`), { code: `HTTP_${res.status}` })
+}
+
+function apiBase(jiraUrl) {
+  if (import.meta.env.DEV) return '/jira-proxy'
+  return jiraUrl.replace(/\/$/, '')
+}
+
+async function fetchSprint(jiraUrl, email, token, sprintId) {
+  const base = apiBase(jiraUrl)
+  const headers = { Authorization: basicAuth(email, token), Accept: 'application/json' }
+  const res = await fetch(`${base}/rest/agile/1.0/sprint/${sprintId}`, { headers })
+  checkStatus(res)
+  const data = await res.json()
+  return {
+    id: data.id,
+    name: data.name,
+    state: data.state,
+    startDate: data.startDate ? data.startDate.slice(0, 10) : null,
+    endDate: data.endDate ? data.endDate.slice(0, 10) : null,
   }
+}
+
+async function fetchAllIssues(jiraUrl, email, token, sprintId) {
+  const base = apiBase(jiraUrl)
+  const headers = { Authorization: basicAuth(email, token), Accept: 'application/json' }
   const jql = encodeURIComponent(`sprint = ${sprintId} ORDER BY updated DESC`)
   const fields = 'summary,status,assignee,priority,updated,created,customfield_10016,customfield_10028'
 
-  let startAt = 0
-  const maxResults = 50
-  let total = null
   const issues = []
+  let nextPageToken = null
 
   do {
-    const url = `${base}/rest/api/3/search?jql=${jql}&fields=${fields}&maxResults=${maxResults}&startAt=${startAt}`
+    const tokenParam = nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ''
+    const url = `${base}/rest/api/3/search/jql?jql=${jql}&fields=${fields}&maxResults=50${tokenParam}`
     const res = await fetch(url, { headers })
-
-    if (!res.ok) {
-      if (res.status === 401) throw Object.assign(new Error('AUTH'), { code: 'AUTH' })
-      if (res.status === 403) throw Object.assign(new Error('PERMISSION'), { code: 'PERMISSION' })
-      if (res.status === 404) throw Object.assign(new Error('NOT_FOUND'), { code: 'NOT_FOUND' })
-      throw Object.assign(new Error(`HTTP_${res.status}`), { code: `HTTP_${res.status}` })
-    }
-
+    checkStatus(res)
     const data = await res.json()
-    total = data.total
-    issues.push(...data.issues)
-    startAt += data.issues.length
-  } while (startAt < total)
+    issues.push(...(data.issues ?? []))
+    nextPageToken = data.isLast ? null : (data.nextPageToken ?? null)
+  } while (nextPageToken)
 
   return issues
 }
@@ -54,9 +70,10 @@ async function fetchAllIssues(jiraUrl, email, token, sprintId) {
 export function useJira() {
   const { config } = useConfig()
   const [issues, setIssues] = useState([])
+  const [sprint, setSprint] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const cache = useRef({ issues: null, timestamp: null })
+  const cache = useRef({ issues: null, sprint: null, timestamp: null })
 
   const load = useCallback(
     async ({ force = false } = {}) => {
@@ -69,6 +86,7 @@ export function useJira() {
       const now = Date.now()
       if (!force && cache.current.issues && now - cache.current.timestamp < CACHE_TTL_MS) {
         setIssues(cache.current.issues)
+        setSprint(cache.current.sprint)
         return
       }
 
@@ -76,11 +94,14 @@ export function useJira() {
       setError(null)
 
       try {
-        const result = await fetchAllIssues(jiraUrl, email, token, sprintId)
-        cache.current = { issues: result, timestamp: Date.now() }
-        setIssues(result)
+        const [issueResult, sprintResult] = await Promise.all([
+          fetchAllIssues(jiraUrl, email, token, sprintId),
+          fetchSprint(jiraUrl, email, token, sprintId),
+        ])
+        cache.current = { issues: issueResult, sprint: sprintResult, timestamp: Date.now() }
+        setIssues(issueResult)
+        setSprint(sprintResult)
       } catch (err) {
-        // TypeError de fetch normalmente indica falha de rede ou CORS
         const isCors = err instanceof TypeError
         const code = isCors ? 'CORS' : (err.code ?? 'UNKNOWN')
         setError(ERROR_MESSAGES[code] ?? `Erro inesperado: ${err.message}`)
@@ -93,5 +114,5 @@ export function useJira() {
 
   const refresh = useCallback(() => load({ force: true }), [load])
 
-  return { issues, loading, error, refresh, load }
+  return { issues, sprint, loading, error, refresh, load }
 }
