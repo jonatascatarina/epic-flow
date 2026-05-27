@@ -68,7 +68,7 @@ Legenda: 🟢 Concluída | 🟡 Em progresso | 🔴 Não iniciada | ⏸ Bloquead
 
 ---
 
-## T9 🟢 Refresh + loading state + erro state global
+## T9 🟢 Refresh + loading state + erro state global ✓ implementado
 
 **O que fazer:** Adicionar botão "Atualizar" no Dashboard que chama `refresh()` do `useJira`. Implementar loading overlay durante fetch. Implementar banner de erro global com opção de retry. Desabilitar botão durante loading.
 
