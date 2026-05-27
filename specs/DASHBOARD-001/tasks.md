@@ -76,7 +76,7 @@ Legenda: 🟢 Concluída | 🟡 Em progresso | 🔴 Não iniciada | ⏸ Bloquead
 
 ---
 
-## T10 🔴 README setup + aviso segurança API Token
+## T10 🟢 README setup + aviso segurança API Token
 
 **O que fazer:** Escrever `README.md` com: pré-requisitos, instalação (`npm install` + `npm run dev`), como configurar (URL Jira, email, token, IDs), como obter o API Token no Jira, seção de aviso de segurança sobre o token em localStorage, troubleshooting de CORS.
 
@@ -86,4 +86,4 @@ Legenda: 🟢 Concluída | 🟡 Em progresso | 🔴 Não iniciada | ⏸ Bloquead
 
 ## Bloqueadores
 
-- T10 🔴 — bloqueia merge para `main` (Artigo VI da constituição)
+Nenhum — T10 concluído, bloqueio removido.
