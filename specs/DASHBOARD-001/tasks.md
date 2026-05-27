@@ -28,7 +28,7 @@ Legenda: 🟢 Concluída | 🟡 Em progresso | 🔴 Não iniciada | ⏸ Bloquead
 
 ---
 
-## T4 🟡 useJira hook (fetch Jira API + erro handling + loading)
+## T4 🟢 useJira hook (fetch Jira API + erro handling + loading)
 
 **O que fazer:** Implementar `useJira.js` que usa config do `useConfig` para buscar issues do sprint via Jira REST API (`/rest/api/3/search`). Tratar: loading state, erro de autenticação (401), erro de CORS, paginação (`startAt` + `maxResults`).
 
