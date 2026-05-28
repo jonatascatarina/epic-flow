@@ -15,15 +15,15 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, 
 
 // Chart.js renders on <canvas> — CSS custom properties are not resolved by the
 // 2D context, so colours must be literal values.
-const COLOR_IDEAL_BORDER = 'rgba(255,255,255,0.35)'
-const COLOR_IDEAL_FILL   = 'rgba(255,255,255,0.05)'
-const COLOR_REAL         = '#4A9EE8'
-const COLOR_REAL_FILL    = 'rgba(74,158,232,0.12)'
+const COLOR_IDEAL_BORDER = '#94A3B8'
+const COLOR_IDEAL_FILL   = 'rgba(148,163,184,0.08)'
+const COLOR_REAL         = '#3B82F6'
+const COLOR_REAL_FILL    = 'rgba(59,130,246,0.10)'
 
 const OPTIONS = {
   responsive: true,
   maintainAspectRatio: false,
-  spanGaps: true, // connect across null values in the real line
+  spanGaps: true,
   interaction: {
     mode: 'index',
     intersect: false,
@@ -31,35 +31,50 @@ const OPTIONS = {
   plugins: {
     legend: {
       position: 'top',
-      labels: { color: '#e6edf3', boxWidth: 12 },
+      labels: {
+        color: '#1E293B',
+        boxWidth: 12,
+        font: { family: 'Inter, sans-serif', size: 12 },
+      },
     },
     tooltip: {
+      backgroundColor: '#1E293B',
+      titleColor: '#F8FAFC',
+      bodyColor: '#CBD5E1',
+      padding: 10,
+      cornerRadius: 8,
       callbacks: {
         label: (ctx) => {
           if (ctx.parsed.y === null) return null
           const unit = ctx.dataset.hasPoints === false ? ' issues' : ' pts'
-          return ` ${ctx.dataset.label}: ${ctx.parsed.y}${unit}`
+          const delta = ctx.datasetIndex === 1 && ctx.chart.data.datasets[0]?.data[ctx.dataIndex] != null
+            ? ` (Δ ${(ctx.parsed.y - ctx.chart.data.datasets[0].data[ctx.dataIndex]).toFixed(1)})`
+            : ''
+          return ` ${ctx.dataset.label}: ${ctx.parsed.y}${unit}${delta}`
         },
       },
     },
   },
   scales: {
     x: {
-      ticks: { color: '#8b949e', maxTicksLimit: 10 },
-      grid: { color: '#30363d' },
+      ticks: {
+        color: '#64748B',
+        maxTicksLimit: 10,
+        font: { family: 'Inter, sans-serif', size: 11 },
+      },
+      grid: { color: '#E2E8F0' },
     },
     y: {
       beginAtZero: true,
-      ticks: { color: '#8b949e' },
-      grid: { color: '#30363d' },
+      ticks: {
+        color: '#64748B',
+        font: { family: 'Inter, sans-serif', size: 11 },
+      },
+      grid: { color: '#E2E8F0' },
     },
   },
 }
 
-/**
- * @param {{ issues: object[], sprint: { startDate: string, endDate: string }, metrics: object }} props
- *   sprint and metrics come from the parent (Dashboard); metrics is the output of calcMetrics()
- */
 export default function BurndownChart({ issues, sprint, metrics }) {
   if (!sprint?.startDate || !sprint?.endDate) {
     return (
@@ -99,9 +114,10 @@ export default function BurndownChart({ issues, sprint, metrics }) {
         data: real,
         borderColor: COLOR_REAL,
         backgroundColor: COLOR_REAL_FILL,
-        borderWidth: 2,
+        borderWidth: 2.5,
         pointRadius: 4,
         pointHoverRadius: 6,
+        pointBackgroundColor: COLOR_REAL,
         tension: 0,
         fill: true,
         hasPoints,
